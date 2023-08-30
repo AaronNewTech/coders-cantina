@@ -6,8 +6,23 @@ from sqlalchemy import MetaData
 
 from config import db
 
+class DrinkIngredientsAssociation(db.Model, SerializerMixin):
+    __tablename__ = 'drink_ingredients'
 
+    id = db.Column(db.Integer, primary_key=True)
 
+    drink_id = db.Column(db.Integer, db.ForeignKey("drinks.id"))
+              
+    ingredient_id = db.Column(db.Integer, db.ForeignKey("ingredients.id"))
+
+class UserDrinksAssociation(db.Model, SerializerMixin):
+    __tablename__ = 'user_drinks'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+                         
+    drink_id = db.Column(db.Integer, db.ForeignKey("drinks.id"))
 
 class Drink(db.Model, SerializerMixin):
     __tablename__ = 'drinks'
@@ -19,7 +34,6 @@ class Drink(db.Model, SerializerMixin):
     strVideo = db.Column(db.String)
     strCategory = db.Column(db.String)
     strInstructions = db.Column(db.String)
-    ingredient_id = db.Column(db.String)
     strIngredient1 = db.Column(db.String)
     strIngredient2 = db.Column(db.String)
     strIngredient3 = db.Column(db.String)
@@ -41,37 +55,38 @@ class Drink(db.Model, SerializerMixin):
     # user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     # relationships
-    # user_drinks = db.relationship('Ingredient', cascade='all, delete', backref='drink')
+    
+    drink_ingredient_associations = db.relationship('DrinkIngredientsAssociation', cascade='all, delete', backref='drink')
 
-    # ingredient_association = db.relationship('DrInAssociation', cascade='all, delete', backref='drink')
+    user_drinks = db.relationship('UserDrinksAssociation', backref='drink')
 
     # serialize rules
-    # serialize_rules = ('-user_drinks', '-drink',)
+    serialize_rules = ('-user_drinks', '-drink',)
 
     # validations
-    # @validates('name')
-    # def validate_name(self, key, name):
-    #     if not name or name.length() <= 0:
-    #         raise ValueError('Invalid name provided')
-    #     return name
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name or name.length() <= 0:
+            raise ValueError('Invalid name provided')
+        return name
     
-    # @validates('description')
-    # def validate_drink_description(self, key, drink_description):
-    #     if not drink_description or drink_description.length() <= 0:
-    #         raise ValueError('Invalid drink description provided')
-    #     return drink_description
+    @validates('description')
+    def validate_drink_description(self, key, drink_description):
+        if not drink_description or drink_description.length() <= 0:
+            raise ValueError('Invalid drink description provided')
+        return drink_description
     
-    # @validates('price')
-    # def validate_price(self, key, price):
-    #     if not price or price < 0:
-    #         raise ValueError('Invalid price provided')
-    #     return price
+    @validates('price')
+    def validate_price(self, key, price):
+        if not price or price < 0:
+            raise ValueError('Invalid price provided')
+        return price
     
-    # @validates('ingredients_needed')
-    # def validate_price(self, key, ingredients_needed):
-    #     if not ingredients_needed or ingredients_needed < 0:
-    #         raise ValueError('Invalid ingredients needed provided')
-    #     return ingredients_needed
+    @validates('ingredients_needed')
+    def validate_price(self, key, ingredients_needed):
+        if not ingredients_needed or ingredients_needed < 0:
+            raise ValueError('Invalid ingredients needed provided')
+        return ingredients_needed
 
 
     def __repr__(self):
@@ -91,29 +106,28 @@ class Ingredient(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    # drink_id = db.Column(db.Integer, db.ForeignKey('drinks.id'))
 
-    # ingredient_association = db.relationship('DrInAssociation', cascade='all, delete', backref='ingredient')
+    drink_ingredient_associations = db.relationship('DrinkIngredientsAssociation', cascade='all, delete', backref='ingredient')
 
     # relationships
 
     # drink_ingredients = db.relationship('Drink', cascade='all, delete', backref='ingredient')
 
     # serialize rules
-    # serialize_rules = ('-user_ingredients', '-ingredient', '-drink_ingredients',)
+    serialize_rules = ('-user_ingredients', '-ingredient', '-drink_ingredients',)
 
     # validations
-    # @validates('name')
-    # def validate_name(self, key, name):
-    #     if not name or name.length() <= 0:
-    #         raise ValueError('Invalid name provided')
-    #     return name
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name or name.length() <= 0:
+            raise ValueError('Invalid name provided')
+        return name
     
-    # @validates('ingredient_description')
-    # def validate_ingredient_discription(self, key, ingredient_description):
-    #     if not ingredient_description or ingredient_description.length() <= 0:
-    #         raise ValueError('Invalid ingrredient description provided')
-    #     return ingredient_description
+    @validates('ingredient_description')
+    def validate_ingredient_discription(self, key, ingredient_description):
+        if not ingredient_description or ingredient_description.length() <= 0:
+            raise ValueError('Invalid ingrredient description provided')
+        return ingredient_description
 
     
 
@@ -131,14 +145,12 @@ class User(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    # Foreign keys
-    # drink_id = db.Column(db.Integer, db.ForeignKey('drinks.id'))
-
     # relationships 
-    # drink_users = db.relationship('Drink', cascade='all, delete', backref='user')
+    user_drinks = db.relationship('UserDrinksAssociation', cascade='all, delete', backref='user')
 
     # serialize rules
-    # serialize_rules = ('-drink.users', '-ingredient.users',)
+    serialize_rules = ('-drink.users', '-ingredient.users',)
+
 
     #validations
     @validates('display_name')
@@ -163,11 +175,3 @@ class User(db.Model, SerializerMixin):
         return f'<User {self.id}>'
     
 
-class DrIngAssociation(db.Model, SerializerMixin):
-    __tablename__ = 'drinassociations'
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    drink_id = db.Column(db.Integer, db.ForeignKey("drinks.id"))
-                         
-    ingredient_id = db.Column(db.Integer, db.ForeignKey("ingredients.id"))
