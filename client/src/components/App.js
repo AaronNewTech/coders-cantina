@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Router } from "react-router-dom";
 import NavBar from "./NavBar";
 import Home from "./Home";
+import LoginForm from "./LoginForm";
 
 
 function App() {
@@ -15,7 +16,7 @@ return (
     
       <Route exact path="/" element={<Home />} />
       
-      
+      <Route path="/LogIn" element={<LoginForm />} />
        
       
     </Routes>

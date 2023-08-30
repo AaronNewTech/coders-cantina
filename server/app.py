@@ -3,15 +3,16 @@
 # Standard library imports
 
 # Remote library imports
-from flask import request
-from flask_restful import Resource
-
+from flask import request, Flask, make_response, jsonify
+from flask_restful import Resource, Api
+from flask_migrate import Migrate
+# Add your model imports
+from models import db, Drink, Ingredient, User
+import os
 # Local imports
 from config import app, db, api
-# Add your model imports
 
 
-# Views go here!
 
 @app.route('/')
 def index():
