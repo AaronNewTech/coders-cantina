@@ -130,7 +130,7 @@ class Ingredient(db.Model, SerializerMixin):
     # validations
     @validates('name')
     def validate_name(self, key, name):
-        if not name or name.length() <= 0:
+        if not name or len(name) <= 0:
             raise ValueError('Invalid name provided')
         return name
 

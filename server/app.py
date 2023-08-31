@@ -62,43 +62,49 @@ api.add_resource(CreateUser, '/create_user')
 
 class CreateDrink(Resource):
     def post(self):
-        drink = Drink()
         data = request.get_json()
 
+        drink = Drink()
+        drink_data = {
+            "strDrink": data["strDrink"],
+            "strInstructions": data["strInstructions"],
+        }
+        for i in range(1, 11):
+            if data.get(f"strIngredient{i}"):
+                drink_data[f"strIngredient{i}"] = data[f"strIngredient{i}"]
+                drink_data[f"strMeasure{i}"] = data.get(f"strMeasure{i}", "")
+
         try:
-            for attr in data:
-                setattr(drink, attr, data[attr])
+            for attr, value in drink_data.items():
+                setattr(drink, attr, value)
             db.session.add(drink)
+            db.session.flush()  # Flush to get the drink id
+
+            # Create and associate ingredients
+            ingredient_ids = []
+            for i in range(1, 11):
+                ingredient_name = data.get(f"strIngredient{i}")
+                if ingredient_name:
+                    ingredient = Ingredient.query.filter_by(name=ingredient_name).first()
+                    if not ingredient:
+                        ingredient = Ingredient(name=ingredient_name)
+                        db.session.add(ingredient)
+                    ingredient_ids.append(ingredient.id)
+            
+            for ingredient_id in ingredient_ids:
+                drink_ingredient_association = DrinkIngredientsAssociation(drink_id=drink.id, ingredient_id=ingredient_id)
+                db.session.add(drink_ingredient_association)
+
             db.session.commit()
+            
             return make_response(drink.to_dict(), 201)
         except ValueError:
+            db.session.rollback()
             return make_response({ "errors": ["validation errors"] }, 400)
 
 api.add_resource(CreateDrink, '/create_drink')
 
-class CreateDrinkIngredients(Resource):
-    def post(self):
-        data = request.get_json()
 
-        # Extract data from the JSON request
-        drink_id = data.get("drinkId")
-        ingredient_ids = data.get("ingredientIds")
-
-        # Fetch the drink and ingredient objects
-        drink = Drink.query.get(drink_id)
-        ingredients = Ingredient.query.filter(Ingredient.id.in_(ingredient_ids)).all()
-
-        # Create associations between the drink and ingredients
-        for ingredient in ingredients:
-            association = DrinkIngredientsAssociation(drink=drink, ingredient=ingredient)
-            db.session.add(association)
-
-        # Commit the changes to the database
-        db.session.commit()
-
-        return make_response({"message": "Drink ingredients associations created successfully"}, 201)
-
-api.add_resource(CreateDrinkIngredients, '/create_drink_ingredients')
 
 
 if __name__ == '__main__':

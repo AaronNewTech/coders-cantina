@@ -28,7 +28,7 @@ function CreateDrink() {
       strIngredient5: ingredients[4],
       strInstructions: instructions,
     };
-
+  
     const response = await fetch("/create_drink", {
       method: "POST",
       headers: {
@@ -36,29 +36,11 @@ function CreateDrink() {
       },
       body: JSON.stringify(newDrink),
     });
-
+  
     if (response.ok) {
       const drink = await response.json();
-      // Create associations in the drink_ingredients table
-      const associationsResponse = await fetch("/create_drink_ingredients", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          drinkId: drink.id, // Assuming the response includes the created drink's ID
-          ingredientIds: ingredients.map((_, index) => index + 1), // Assuming ingredient IDs start from 1
-        }),
-      });
-      
-      if (associationsResponse.ok) {
-        const associations = await associationsResponse.json();
-        addDrink({ ...drink, drink_ingredient_associations: associations });
-        setFormErrors([]);
-      } else {
-        const err = await associationsResponse.json();
-        setFormErrors(err.errors);
-      }
+      addDrink(drink);
+      setFormErrors([]);
     } else {
       const err = await response.json();
       setFormErrors(err.errors);
