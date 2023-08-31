@@ -6,9 +6,10 @@ import { Route, Routes } from "react-router-dom";
 import NavBar from "./NavBar";
 import Home from "./Home";
 import Random from "./Random";
-import Create from "./Create";
+import CreateUser from "./CreateUser";
 import DrinkDisplay from "./DrinkDisplay";
 import LoginForm from "./LoginForm";
+import CreateDrink from "./CreateDrink";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -34,7 +35,8 @@ function App() {
         <Route exact path="/" element={<Home />} />
         <Route path="/LogIn" element={<LoginForm login={login} setLogin={setLogin} />} />
         <Route path="/Random" element={<Random />} />
-        <Route path="/Create" element={<Create />} />
+        <Route path="/create_drink" element={<CreateDrink />} />
+        <Route path="/create_user" element={<CreateUser />} />
       </Routes>
 
       

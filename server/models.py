@@ -166,23 +166,23 @@ class User(db.Model, SerializerMixin):
 
     # validations
 
-    @validates('display_name')
-    def validate_display_name(self, key, display_name):
-        if not display_name or display_name.length() <= 0:
-            raise ValueError('Invalid display_name provided')
-        return display_name
+    # @validates('display_name')
+    # def validate_display_name(self, key, display_name):
+    #     if not display_name or display_name.length() <= 0:
+    #         raise ValueError('Invalid display_name provided')
+    #     return display_name
 
-    @validates('username')
-    def validate_username(self, key, username):
-        if not username or username.length() <= 0:
-            raise ValueError('Invalid username provided')
-        return username
+    # @validates('username')
+    # def validate_username(self, key, username):
+    #     if not username or username.length() <= 0:
+    #         raise ValueError('Invalid username provided')
+    #     return username
 
-    @validates('password')
-    def validate_password(self, key, password):
-        if not password or password.length() <= 0:
-            raise ValueError('Invalid password provided')
-        return password
+    # @validates('password')
+    # def validate_password(self, key, password):
+    #     if not password or password.length() <= 0:
+    #         raise ValueError('Invalid password provided')
+    #     return password
 
     def __repr__(self):
         return f'<User {self.id}>'

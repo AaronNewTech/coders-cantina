@@ -5,7 +5,7 @@ import DrinkDisplay from "./DrinkDisplay";
 function Random() {
   const [randomDrink, setRandomDrink] = useState(null);
   const minDrinkId = 11000;
-  const maxDrinkId = 12000;
+  const maxDrinkId = 11550;
 
   useEffect(() => {
     fetchRandomDrink();
