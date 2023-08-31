@@ -2,41 +2,45 @@ import React, { useEffect, useState } from "react";
 import NavBar from "./NavBar";
 import DrinkDisplay from "./DrinkDisplay";
 
-function Home() {
-  const [drinks, setDrinks] = useState([]);
+function Random() {
+  const [randomDrink, setRandomDrink] = useState(null);
   const minDrinkId = 11000;
   const maxDrinkId = 12000;
 
   useEffect(() => {
-    fetchRandomDrinks();
+    fetchRandomDrink();
   }, []);
 
-  const fetchRandomDrinks = async () => {
-    const numDrinks = 4; // Number of random drinks to fetch
-    let randomDrinks = [];
+  const fetchRandomDrink = async () => {
+    let randomDrinkData = null;
 
-    while (randomDrinks.length < numDrinks) {
+    while (!randomDrinkData) {
       const randomDrinkId = Math.floor(Math.random() * (maxDrinkId - minDrinkId + 1)) + minDrinkId;
       const response = await fetch(`http://localhost:3000/drinks/${randomDrinkId}`);
-      
+
       if (response.ok) {
-        const randomDrink = await response.json();
-        randomDrinks.push(randomDrink);
+        randomDrinkData = await response.json();
+        // Fetch associated ingredients
+        const ingredientsResponse = await fetch(`http://localhost:3000/ingredients/${randomDrinkId}`);
+        if (ingredientsResponse.ok) {
+          const ingredients = await ingredientsResponse.json();
+          randomDrinkData.ingredients = ingredients;
+        }
       }
     }
 
-    setDrinks(randomDrinks);
+    setRandomDrink(randomDrinkData);
   };
 
   return (
     <div className="flex-container">
-      {drinks.map((drink) => (
-        <div className="display-container" key={drink.id}>
-          <DrinkDisplay drink={drink} />
+      {randomDrink && (
+        <div className="display-container">
+          <DrinkDisplay drink={randomDrink} />
         </div>
-      ))}
+      )}
     </div>
   );
 }
 
-export default Home;
+export default Random;

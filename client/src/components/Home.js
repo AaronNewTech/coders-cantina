@@ -3,36 +3,35 @@ import NavBar from "./NavBar";
 import DrinkDisplay from "./DrinkDisplay";
 
 function Home() {
-  const [drink, setDrink] = useState(null);
-  const minDrinkId = 11000;
-  const maxDrinkId = 12000;
+  const [drinks, setDrinks] = useState([]);
 
   useEffect(() => {
-    fetchRandomDrink();
+    fetchSpecificDrinks();
   }, []);
 
-  const fetchRandomDrink = async () => {
-    let randomDrinkId;
-    let randomDrink = null;
+  const fetchSpecificDrinks = async () => {
+    const drinkIds = [11000, 11009, 11470, 11053];
+    let specificDrinks = [];
 
-    while (!randomDrink) {
-      randomDrinkId = Math.floor(Math.random() * (maxDrinkId - minDrinkId + 1)) + minDrinkId;
-      const response = await fetch(`http://localhost:3000/drinks/${randomDrinkId}`);
+    for (const drinkId of drinkIds) {
+      const response = await fetch(`http://localhost:3000/drinks/${drinkId}`);
+      
       if (response.ok) {
-        randomDrink = await response.json();
+        const specificDrink = await response.json();
+        specificDrinks.push(specificDrink);
       }
     }
 
-    setDrink(randomDrink);
+    setDrinks(specificDrinks);
   };
 
   return (
     <div className="flex-container">
-      {drink && (
-        <div className="display-container">
+      {drinks.map((drink) => (
+        <div className="display-container" key={drink.id}>
           <DrinkDisplay drink={drink} />
         </div>
-      )}
+      ))}
     </div>
   );
 }
