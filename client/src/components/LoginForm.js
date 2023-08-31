@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFormik, Formik } from "formik";
 import * as yup from "yup";
-export const LoginForm = () => {
+export const LoginForm = ({ login, setLogin }) => {
 
 const [customers, setCustomers] = useState([{}]);
 const [refreshPage, setRefreshPage] = useState(false);

@@ -6,14 +6,24 @@ from sqlalchemy import MetaData
 
 from config import db
 
+
 class DrinkIngredientsAssociation(db.Model, SerializerMixin):
     __tablename__ = 'drink_ingredients'
 
     id = db.Column(db.Integer, primary_key=True)
 
     drink_id = db.Column(db.Integer, db.ForeignKey("drinks.id"))
-              
+
     ingredient_id = db.Column(db.Integer, db.ForeignKey("ingredients.id"))
+
+    # serialize_rules = ('-sweet.vendor_sweets', '-vendor.vendor_sweets')
+
+    serialize_rules = ('-drink.drink_ingredient_associations', '-ingredient.drink_ingredient_associations',)
+
+
+    # serialize_rules = ('-drink.drink_ingredients',
+    #                    '-ingredient.drink_ingredients',)
+
 
 class UserDrinksAssociation(db.Model, SerializerMixin):
     __tablename__ = 'user_drinks'
@@ -21,8 +31,12 @@ class UserDrinksAssociation(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-                         
+
     drink_id = db.Column(db.Integer, db.ForeignKey("drinks.id"))
+
+    serialize_rules = ('-user.user_drinks', '-drink.user_drinks',)
+
+
 
 class Drink(db.Model, SerializerMixin):
     __tablename__ = 'drinks'
@@ -47,7 +61,6 @@ class Drink(db.Model, SerializerMixin):
     strMeasure1 = db.Column(db.String)
     strMeasure2 = db.Column(db.String)
     strMeasure3 = db.Column(db.String)
-    
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
@@ -55,13 +68,16 @@ class Drink(db.Model, SerializerMixin):
     # user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     # relationships
-    
-    drink_ingredient_associations = db.relationship('DrinkIngredientsAssociation', cascade='all, delete', backref='drink')
+
+    drink_ingredient_associations = db.relationship(
+        'DrinkIngredientsAssociation', cascade='all, delete', backref='drink')
 
     user_drinks = db.relationship('UserDrinksAssociation', backref='drink')
 
     # serialize rules
-    serialize_rules = ('-user_drinks', '-drink',)
+
+    serialize_rules = ('-users.drink', '-drink_ingredient_associations.drink', '-user_drinks.drink',)
+
 
     # validations
     @validates('name')
@@ -69,30 +85,27 @@ class Drink(db.Model, SerializerMixin):
         if not name or name.length() <= 0:
             raise ValueError('Invalid name provided')
         return name
-    
+
     @validates('description')
     def validate_drink_description(self, key, drink_description):
         if not drink_description or drink_description.length() <= 0:
             raise ValueError('Invalid drink description provided')
         return drink_description
-    
+
     @validates('price')
     def validate_price(self, key, price):
         if not price or price < 0:
             raise ValueError('Invalid price provided')
         return price
-    
+
     @validates('ingredients_needed')
     def validate_price(self, key, ingredients_needed):
         if not ingredients_needed or ingredients_needed < 0:
             raise ValueError('Invalid ingredients needed provided')
         return ingredients_needed
 
-
     def __repr__(self):
         return f'<Drink {self.id}>'
-
-
 
 
 class Ingredient(db.Model, SerializerMixin):
@@ -100,21 +113,19 @@ class Ingredient(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    
+
     # user_id = db.Column(db.Integer)
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
-
-
-    drink_ingredient_associations = db.relationship('DrinkIngredientsAssociation', cascade='all, delete', backref='ingredient')
-
     # relationships
+    drink_ingredient_associations = db.relationship(
+        'DrinkIngredientsAssociation', cascade='all, delete', backref='ingredient')
 
-    # drink_ingredients = db.relationship('Drink', cascade='all, delete', backref='ingredient')
+    
 
-    # serialize rules
-    serialize_rules = ('-user_ingredients', '-ingredient', '-drink_ingredients',)
+    serialize_rules = ('-user_ingredients.ingredient', '-drink_ingredients.ingredient',)
+
 
     # validations
     @validates('name')
@@ -122,18 +133,16 @@ class Ingredient(db.Model, SerializerMixin):
         if not name or name.length() <= 0:
             raise ValueError('Invalid name provided')
         return name
-    
+
     @validates('ingredient_description')
     def validate_ingredient_discription(self, key, ingredient_description):
         if not ingredient_description or ingredient_description.length() <= 0:
-            raise ValueError('Invalid ingrredient description provided')
+            raise ValueError('Invalid ingredient description provided')
         return ingredient_description
-
-    
 
     def __repr__(self):
         return f'<Ingredient {self.id}>'
-    
+
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
@@ -145,26 +154,30 @@ class User(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    # relationships 
-    user_drinks = db.relationship('UserDrinksAssociation', cascade='all, delete', backref='user')
+    # relationships
+    user_drinks = db.relationship(
+        'UserDrinksAssociation', cascade='all, delete', backref='user')
 
     # serialize rules
-    serialize_rules = ('-drink.users', '-ingredient.users',)
+    # serialize_rules = ('-drink.users', '-ingredient.users',)
+
+    serialize_rules = ('-drink.users', '-ingredient.users', '-user_drinks.user',)
 
 
-    #validations
+    # validations
+
     @validates('display_name')
     def validate_display_name(self, key, display_name):
         if not display_name or display_name.length() <= 0:
             raise ValueError('Invalid display_name provided')
         return display_name
-    
+
     @validates('username')
     def validate_username(self, key, username):
         if not username or username.length() <= 0:
             raise ValueError('Invalid username provided')
         return username
-    
+
     @validates('password')
     def validate_password(self, key, password):
         if not password or password.length() <= 0:
@@ -173,5 +186,3 @@ class User(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<User {self.id}>'
-    
-
