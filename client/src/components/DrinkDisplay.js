@@ -1,6 +1,6 @@
 import React from "react";
 
-function DrinkDisplay({ drink }) {
+function DrinkDisplay({ drink, onFavoriteClick }) {
   if (!drink) {
     return null;
   }
@@ -24,16 +24,8 @@ function DrinkDisplay({ drink }) {
               </li>
             ))}
           </ul>
-
-          {/* {drink.strVideo && (
-            <iframe
-              title={drink.strDrink}
-              width="560"
-              height="315"
-              src={`https://www.youtube.com/embed/${getVideoIdFromUrl(drink.strVideo)}`}
-              allowFullScreen
-            ></iframe>
-          )} */}
+          <button onClick={() => onFavoriteClick(drink.id)}>Add to Favorites</button>
+          
         </div>
       </div>
     </div>

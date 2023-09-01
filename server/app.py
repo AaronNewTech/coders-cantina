@@ -3,15 +3,16 @@
 # Standard library imports
 
 # Remote library imports
-from flask import request, Flask, make_response, jsonify
+from flask import request, Flask, make_response, jsonify, session
 from flask_restful import Resource, Api
 from flask_migrate import Migrate
 # Add your model imports
-from models import db, Drink, Ingredient, User, DrinkIngredientsAssociation
+from models import db, Drink, Ingredient, User, DrinkIngredientsAssociation, UserDrinksAssociation
 import os
 # Local imports
 from config import app, db, api
 
+app.secret_key = "your_secret_key"
 
 @app.route('/')
 def index():
@@ -54,9 +55,14 @@ class CreateUser(Resource):
                 setattr(user, attr, data[attr])
             db.session.add(user)
             db.session.commit()
+
+            # Set session variable after successful registration
+            session["user_id"] = user.id
+
             return make_response(user.to_dict(), 201)
         except ValueError:
             return make_response({ "errors": ["validation errors"] }, 400)
+
         
 api.add_resource(CreateUser, '/create_user')
 
@@ -105,6 +111,48 @@ class CreateDrink(Resource):
 api.add_resource(CreateDrink, '/create_drink')
 
 
+# class UserDrinks(Resource):
+
+#     def add_to_favorites():
+#         data = request.get_json()
+#         drink_id = data.get("drinkId")
+#         user_id = get_current_user_id()  # Implement your user authentication logic
+
+#         user_drink = UserDrinksAssociation(user_id=user_id, drink_id=drink_id)
+#         db.session.add(user_drink)
+#         db.session.commit()
+
+#         return jsonify(user_drink.to_dict()), 201
+    
+# api.add_resource(UserDrinks, '/add_tofavorites')
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    # Implement your user authentication logic here
+    user = User.query.filter_by(username=username).first()
+    if user and user.password == password:
+        session["user_id"] = user.id
+        return make_response({"message": "Login successful"}, 200)
+    else:
+        return make_response({"message": "Invalid credentials"}, 401)
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return make_response({"message": "Logout successful"}, 200)
+
+@app.route('/check_login', methods=['GET'])
+def check_login():
+    user_id = session.get("user_id")
+    if user_id:
+        return make_response({"logged_in": True, "user_id": user_id}, 200)
+    else:
+        return make_response({"logged_in": False}, 200)
 
 
 if __name__ == '__main__':

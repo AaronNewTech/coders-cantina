@@ -148,9 +148,10 @@ class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    display_name = db.Column(db.String)
+    # display_name = db.Column(db.String)
     username = db.Column(db.String)
     password = db.Column(db.String)
+    age = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 

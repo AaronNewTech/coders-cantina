@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useFormik, Formik } from "formik";
 import * as yup from "yup";
-export const LoginForm = ({ login, setLogin }) => {
+import { useLogin } from "./LoginContext";
+export const LoginForm = () => {
+  const { isLoggedIn, login, logout } = useLogin(); // Use the hook to get login state and functions
 
-const [customers, setCustomers] = useState([{}]);
-const [refreshPage, setRefreshPage] = useState(false);
+  const [users, setUsers] = useState([{}]);
+  const [refreshPage, setRefreshPage] = useState(false);
   // Pass the useFormik() hook initial form values and a submit function that will
   // be called when the form is submitted
 
   useEffect(() => {
     console.log("FETCH! ");
-    fetch("/customers")
+    fetch("/users")
       .then((res) => res.json())
       .then((data) => {
-        setCustomers(data);
+        setUsers(data);
         console.log(data);
       });
   }, [refreshPage]);
@@ -38,7 +40,7 @@ const [refreshPage, setRefreshPage] = useState(false);
     },
     validationSchema: formSchema,
     onSubmit: (values) => {
-      fetch("customers", {
+      fetch("users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,6 +56,11 @@ const [refreshPage, setRefreshPage] = useState(false);
 
   return (
     <div>
+       {isLoggedIn ? (
+        <button onClick={logout}>Logout</button>
+      ) : (
+        <button onClick={login}>Login</button>
+      )}
       <form onSubmit={formik.handleSubmit} style={{ margin: "30px" }}>
         <label htmlFor="email">Email Address</label>
         <br />
@@ -94,15 +101,15 @@ const [refreshPage, setRefreshPage] = useState(false);
             <th>email</th>
             <th>age</th>
           </tr>
-          {customers === "undefined" ? (
+          {users === "undefined" ? (
             <p>Loading</p>
           ) : (
-            customers.map((customer, i) => (
+            users.map((user, i) => (
               <>
                 <tr key={i}>
-                  <td>{customer.name}</td>
-                  <td>{customer.email}</td>
-                  <td>{customer.age}</td>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>{user.age}</td>
                 </tr>
               </>
             ))
