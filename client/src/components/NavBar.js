@@ -9,10 +9,10 @@ function NavBar() {
           {" "}
           <NavLink to="/"> Home </NavLink>
         </li>
-        <li>
+        {/* <li>
           {" "}
           <NavLink to="/users-with-drinks"> List of Users Favorites </NavLink>
-        </li>
+        </li> */}
         <li>
           <NavLink to="/Random"> Not Sure? Click Here for a Random Drink </NavLink>
         </li>
