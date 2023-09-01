@@ -3,6 +3,27 @@
   --header: #fff;
   --link: #61dafb;
   --text: hsla(0, 0%, 100%, 0.88);
+  
+}
+
+.form {
+  font-weight: bold;
+}
+
+.navbarStyles a {
+  color: black;
+  text-decoration: none; 
+  font-weight: bold;
+}
+
+.navbarStyles a:hover {
+  color: black;
+  font-weight: bold;
+}
+
+.navbarStyles a:visited {
+  color: black;
+  font-weight: bold;
 }
 
 body {

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
+import * as yup from "yup";
+import { useFormik } from "formik";
 
 function CreateDrink() {
-  const [drinkName, setDrinkName] = useState("");
-  const [ingredients, setIngredients] = useState(["", "", "", "", ""]);
-  const [instructions, setInstructions] = useState("");
   const [formErrors, setFormErrors] = useState([]);
   const [drinks, setDrinks] = useState([]);
 
@@ -17,61 +16,86 @@ function CreateDrink() {
     setDrinks([...drinks, newDrink]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newDrink = {
-      strDrink: drinkName,
-      strIngredient1: ingredients[0],
-      strIngredient2: ingredients[1],
-      strIngredient3: ingredients[2],
-      strIngredient4: ingredients[3],
-      strIngredient5: ingredients[4],
-      strInstructions: instructions,
-    };
-  
-    const response = await fetch("/create_drink", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newDrink),
-    });
-  
-    if (response.ok) {
-      const drink = await response.json();
-      addDrink(drink);
-      setFormErrors([]);
-    } else {
-      const err = await response.json();
-      setFormErrors(err.errors);
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      drinkName: "",
+      ingredients: ["", "", "", "", ""],
+      instructions: "",
+      imageURL: "", // Add image URL field
+    },
+    onSubmit: async (values) => {
+      const newDrink = {
+        strDrink: values.drinkName,
+        strDrinkThumb: values.imageURL,
+        strIngredient1: values.ingredients[0],
+        strIngredient2: values.ingredients[1],
+        strIngredient3: values.ingredients[2],
+        strIngredient4: values.ingredients[3],
+        strIngredient5: values.ingredients[4],
+        strInstructions: values.instructions,
+      };
 
-  const handleIngredientChange = (index, value) => {
-    const newIngredients = [...ingredients];
-    newIngredients[index] = value;
-    setIngredients(newIngredients);
-  };
+      const response = await fetch("/create_drink", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newDrink),
+      });
+
+      if (response.ok) {
+        const drink = await response.json();
+        addDrink(drink);
+        formik.resetForm();
+        setFormErrors([]);
+      } else {
+        const err = await response.json();
+        setFormErrors(err.errors);
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="new-drink-form">
-      <input onChange={(e) => setDrinkName(e.target.value)} placeholder="Drink Name" />
-      {ingredients.map((ingredient, index) => (
+    <form onSubmit={formik.handleSubmit} className="form">
+      <input
+        id="drinkName"
+        name="drinkName"
+        type="text"
+        onChange={formik.handleChange}
+        value={formik.values.drinkName}
+        placeholder="Drink Name"
+      />
+      {formik.values.ingredients.map((ingredient, index) => (
         <input
           key={index}
-          value={ingredient}
-          onChange={(e) => handleIngredientChange(index, e.target.value)}
+          id={`ingredients[${index}]`}
+          name={`ingredients[${index}]`}
+          type="text"
+          onChange={formik.handleChange}
+          value={formik.values.ingredients[index]}
           placeholder={`Ingredient ${index + 1}`}
         />
       ))}
       <textarea
-        onChange={(e) => setInstructions(e.target.value)}
+        id="instructions"
+        name="instructions"
+        onChange={formik.handleChange}
+        value={formik.values.instructions}
         placeholder="Instructions"
         rows={5}
       />
+      {/* Add input for the image URL */}
+      <input
+        id="imageURL"
+        name="imageURL"
+        type="text"
+        onChange={formik.handleChange}
+        value={formik.values.imageURL}
+        placeholder="Image URL"
+      />
       {formErrors.length > 0
-        ? formErrors.map((err) => (
-            <p key={err} style={{ color: "red" }}>
+        ? formErrors.map((err, index) => (
+            <p key={index} style={{ color: "red" }}>
               {err}
             </p>
           ))

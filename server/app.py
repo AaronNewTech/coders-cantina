@@ -27,8 +27,58 @@ class DrinksById(Resource):
                 "error": "Drink not found"
             }, 404)
         return make_response(drink.to_dict(), 200)
+    
+    def delete(self, id):
+        drink = Drink.query.filter(Drink.id==id).one_or_none()
+        if drink is None:
+            return make_response({'error': 'Drink is not found'}, 404)
+        db.session.delete(drink)
+        db.session.commit()
+        return make_response({''}, 204)
 
+    def patch(self, id):
+        drink = Drink.query.filter(Drink.id == id).first()
+        if not drink:
+            return make_response({"error": "Drink not found"}, 404)
+        data = request.get_json()
+        try:
+            for attr in data:
+                setattr(drink, attr, data[attr])
+            
+            db.session.add(drink)
+            db.session.commit()
 
+            return make_response(drink.to_dict(), 202)
+        
+        except ValueError:
+            return make_response({"errors": ["validation errors"]}, 400)
+
+    def delete(self, id):
+        drink = Drink.query.filter(Drink.id==id).one_or_none()
+        if drink is None:
+            return make_response({'error': 'Drink is not found'}, 404)
+        db.session.delete(drink)
+        db.session.commit()
+        return make_response({}, 204)
+
+    def patch(self, id):
+        drink = Drink.query.filter(Drink.id == id).one_or_none()
+
+        if drink is None:
+            return {'error': 'Drink not found'}, 404
+
+        fields = request.get_json()
+
+        try:
+            setattr(drink, 'strDrink', fields['strDrink'])
+            setattr(drink, 'strInstructions', fields['strInstructions'])
+            db.session.add(drink)
+            db.session.commit()
+
+            return drink.to_dict(), 202
+
+        except ValueError:
+            return make_response({"errors": ["validation errors"]}, 400)
 api.add_resource(DrinksById, '/drinks/<int:id>')
 
 class Drinks(Resource):
@@ -66,6 +116,18 @@ class CreateUser(Resource):
         
 api.add_resource(CreateUser, '/create_user')
 
+class UserSettings(Resource):
+
+    def delete(self, id):
+        user = Drink.query.filter(User.id==id).one_or_none()
+        if user is None:
+            return make_response({'error': 'Drink is not found'}, 404)
+        db.session.delete(user)
+        db.session.commit()
+        return make_response({''}, 204)
+
+api.add_resource(UserSettings, '/user_settings')
+
 class CreateDrink(Resource):
     def post(self):
         data = request.get_json()
@@ -74,6 +136,7 @@ class CreateDrink(Resource):
         drink_data = {
             "strDrink": data["strDrink"],
             "strInstructions": data["strInstructions"],
+            "strDrinkThumb": data.get("strDrinkThumb", ""),  # Updated to strDrinkThumb
         }
         for i in range(1, 11):
             if data.get(f"strIngredient{i}"):
@@ -109,6 +172,8 @@ class CreateDrink(Resource):
             return make_response({ "errors": ["validation errors"] }, 400)
 
 api.add_resource(CreateDrink, '/create_drink')
+
+
 
 
 # class UserDrinks(Resource):

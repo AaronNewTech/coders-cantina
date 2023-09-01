@@ -42,7 +42,7 @@ function CreateUser() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="form">
       <label htmlFor="name">Username: </label>
       <input
         id="username"

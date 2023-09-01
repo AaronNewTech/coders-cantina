@@ -25,7 +25,15 @@ function DrinkDisplay({ drink, onFavoriteClick }) {
             ))}
           </ul>
           <button onClick={() => onFavoriteClick(drink.id)}>Add to Favorites</button>
-          
+          {/* {drink.strVideo && (
+            <iframe
+              title={drink.strDrink}
+              width="560"
+              height="315"
+              src={`https://www.youtube.com/embed/${getVideoIdFromUrl(drink.strVideo)}`}
+              allowFullScreen
+            ></iframe>
+          )} */}
         </div>
       </div>
     </div>

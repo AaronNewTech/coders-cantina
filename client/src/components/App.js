@@ -11,6 +11,7 @@ import DrinkDisplay from "./DrinkDisplay";
 import LoginForm from "./LoginForm";
 import CreateDrink from "./CreateDrink";
 import { LoginContext } from './LoginContext';
+import AllDrinks from "./AllDrinks";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -38,6 +39,7 @@ function App() {
         <Route path="/Random" element={<Random />} />
         <Route path="/create_drink" element={<CreateDrink />} />
         <Route path="/create_user" element={<CreateUser />} />
+        <Route path="/drinks" element={<AllDrinks />} />
       </Routes>
 
       

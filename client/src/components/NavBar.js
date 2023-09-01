@@ -20,7 +20,10 @@ function NavBar() {
           <NavLink to="/create_drink"> Create Your Own Drink </NavLink>
         </li>
         <li>
-          <NavLink to="/create_user"> New Here? Signup </NavLink>
+          <NavLink to="/create_user"> New Here? Create an Account </NavLink>
+          <li>
+          <NavLink to="/drinks"> See all drinks </NavLink>
+        </li>
         </li>
       </nav>
     </div>
