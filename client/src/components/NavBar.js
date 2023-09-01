@@ -11,7 +11,7 @@ function NavBar() {
         </li>
         <li>
           {" "}
-          <NavLink to="/LogIn"> Log In </NavLink>
+          <NavLink to="/users-with-drinks"> List of Users Favorites </NavLink>
         </li>
         <li>
           <NavLink to="/Random"> Not Sure? Click Here for a Random Drink </NavLink>

@@ -1,4 +1,5 @@
 import React from "react";
+import FavoriteButton from "./FavoriteButton";
 
 function DrinkDisplay({ drink, onFavoriteClick }) {
   if (!drink) {
@@ -24,7 +25,7 @@ function DrinkDisplay({ drink, onFavoriteClick }) {
               </li>
             ))}
           </ul>
-          <button onClick={() => onFavoriteClick(drink.id)}>Add to Favorites</button>
+          {/* <button onClick={() => onFavoriteClick(drink.id)}>Add to Favorites</button> */}
           {/* {drink.strVideo && (
             <iframe
               title={drink.strDrink}

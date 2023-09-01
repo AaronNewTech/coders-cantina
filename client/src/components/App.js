@@ -12,6 +12,7 @@ import LoginForm from "./LoginForm";
 import CreateDrink from "./CreateDrink";
 import { LoginContext } from './LoginContext';
 import AllDrinks from "./AllDrinks";
+import AllUsers from "./AllUsers";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -35,7 +36,7 @@ function App() {
       <NavBar />
       <Routes>
         <Route exact path="/" element={<Home />} />
-        <Route path="/LogIn" element={<LoginForm login={login} setLogin={setLogin} />} />
+        <Route path="/users-with-drinks" element={<AllUsers  />} />
         <Route path="/Random" element={<Random />} />
         <Route path="/create_drink" element={<CreateDrink />} />
         <Route path="/create_user" element={<CreateUser />} />

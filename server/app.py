@@ -219,6 +219,52 @@ def check_login():
     else:
         return make_response({"logged_in": False}, 200)
 
+@app.route('/users-with-drinks')
+def users_with_drinks():
+    # Query the database to get users with their associated drinks
+    users_with_drinks = []
+
+    # Assuming you have a User model and a UserDrinksAssociation model
+    users = User.query.all()
+    
+    for user in users:
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'age': user.age,
+            'favoriteDrinks': []  # This will store the user's favorite drinks
+        }
+
+        # Query the associated drinks for the current user
+        drink_associations = UserDrinksAssociation.query.filter_by(user_id=user.id).all()
+        for association in drink_associations:
+            drink = Drink.query.get(association.drink_id)
+            if drink:
+                user_data['favoriteDrinks'].append({
+                    'id': drink.id,
+                    'strDrink': drink.strDrink,
+                    'strInstructions': drink.strInstructions,
+                    'strDrinkThumb': drink.strDrinkThumb
+                })
+
+        users_with_drinks.append(user_data)
+
+    return jsonify(users_with_drinks)
+
+
+@app.route('/add-favorite', methods=['POST'])
+def add_favorite():
+    data = request.get_json()
+    user_id = data.get('userId')
+    drink_id = data.get('drinkId')
+
+    # Assuming you have a UserDrinksAssociation model
+    user_drink_association = UserDrinksAssociation(user_id=user_id, drink_id=drink_id)
+
+    db.session.add(user_drink_association)
+    db.session.commit()
+
+    return jsonify({'message': 'Drink added to favorites successfully'})
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

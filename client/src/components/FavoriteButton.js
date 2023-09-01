@@ -1,36 +1,33 @@
-import React, { useState } from "react";
-import DrinkDisplay from "./DrinkDisplay";
+import React, { useState } from 'react';
 
-function ParentComponent() {
-  const [favoriteDrinks, setFavoriteDrinks] = useState([]);
+function FavoriteButton({ userId, drinkId }) {
+  const [isFavorited, setIsFavorited] = useState(false);
 
-  const handleFavoriteClick = async (drinkId) => {
-    // Send a POST request to add the drink to the user's favorites
-    const response = await fetch("/add_to_favorites", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ drinkId }),
-    });
+  const handleFavoriteClick = async () => {
+    try {
+      const response = await fetch('/add-favorite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, drinkId }),
+      });
 
-    if (response.ok) {
-      const favoriteDrink = await response.json();
-      setFavoriteDrinks([...favoriteDrinks, favoriteDrink]);
-    } else {
-      // Handle error
+      if (response.ok) {
+        setIsFavorited(true);
+      } else {
+        console.error('Failed to add drink to favorites');
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
   return (
-    <div>
-      {/* ... (other content) ... */}
-
-      {favoriteDrinks.map((favoriteDrink) => (
-        <DrinkDisplay key={favoriteDrink.id} drink={favoriteDrink} />
-      ))}
-    </div>
+    <button onClick={handleFavoriteClick} disabled={isFavorited}>
+      {isFavorited ? 'Favorited' : 'Add to Favorites'}
+    </button>
   );
 }
 
-export default ParentComponent;
+export default FavoriteButton;
