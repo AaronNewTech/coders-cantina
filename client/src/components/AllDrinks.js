@@ -82,13 +82,13 @@ function AllDrinks() {
           fetchAllDrinks();
           setSelectedDrink(null); // Clear the selected drink
           setUpdateData({
-            strDrink: updateData.drinkName,
-            strDrinkThumb: updateData.imageURL,
-            strIngredient1: updateData.ingredients[0],
-            strIngredient2: updateData.ingredients[1],
-            strIngredient3: updateData.ingredients[2],
-            strIngredient4: updateData.ingredients[3],
-            strIngredient5: updateData.ingredients[4],
+            strDrink: updateData.strDrink,
+            strDrinkThumb: updateData.strDrinkThumb,
+            strIngredient1: updateData.strIngredient1,
+            strIngredient2: updateData.strIngredient2,
+            strIngredient3: updateData.strIngredient3,
+            strIngredient4: updateData.strIngredient4,
+            strIngredient5: updateData.strIngredient5,
             strInstructions: updateData.strInstructions,
           }); // Clear the update data
         } else {
@@ -97,10 +97,11 @@ function AllDrinks() {
       })
       .catch((error) => console.error("Error updating drink:", error));
   };
+  
 
   return (
     <div className="flex-container">
-      {drinks.map((drink) => (
+      {drinks && drinks.map((drink) => (
         <div className="display-container" key={drink.id}>
           <DrinkDisplay drink={drink} />
           <button onClick={() => handleDelete(drink.id)}>Delete</button>

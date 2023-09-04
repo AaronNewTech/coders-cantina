@@ -1,22 +1,20 @@
 #!/usr/bin/env python3
 
-# Standard library imports
 
-# Remote library imports
 from flask import request, Flask, make_response, jsonify, session
 from flask_restful import Resource, Api
 from flask_migrate import Migrate
-# Add your model imports
 from models import db, Drink, Ingredient, User, DrinkIngredientsAssociation, UserDrinksAssociation
 import os
-# Local imports
 from config import app, db, api
+
 
 app.secret_key = "your_secret_key"
 
+
 @app.route('/')
 def index():
-    return '<h1>Phase 4 Project Server</h1>'
+    return f"<h1>Coder's Cantina</h1>"
 
 
 class DrinksById(Resource):
@@ -34,52 +32,57 @@ class DrinksById(Resource):
             return make_response({'error': 'Drink is not found'}, 404)
         db.session.delete(drink)
         db.session.commit()
-        return make_response({''}, 204)
+        return make_response('', 204)
 
+    
     def patch(self, id):
         drink = Drink.query.filter(Drink.id == id).first()
         if not drink:
             return make_response({"error": "Drink not found"}, 404)
+        
         data = request.get_json()
+        
         try:
-            for attr in data:
-                setattr(drink, attr, data[attr])
+            # Update the attributes of the drink based on incoming data
+            for attr, value in data.items():
+                setattr(drink, attr, value)
             
-            db.session.add(drink)
+            # Update the associations between the drink and ingredients
+            ingredient_ids = []
+            for i in range(1, 11):
+                ingredient_name = data.get(f"strIngredient{i}")
+                if ingredient_name:
+                    ingredient = Ingredient.query.filter_by(name=ingredient_name).first()
+                    if not ingredient:
+                        ingredient = Ingredient(name=ingredient_name)
+                        db.session.add(ingredient)
+                    ingredient_ids.append(ingredient.id)
+            
+            # Remove existing associations not in the updated ingredient list
+            existing_ingredients = [association.ingredient_id for association in drink.drink_ingredient_associations]
+            associations_to_remove = []
+            for association in drink.drink_ingredient_associations:
+                if association.ingredient_id not in ingredient_ids:
+                    associations_to_remove.append(association)
+            
+            for association in associations_to_remove:
+                db.session.delete(association)
+            
+            # Create new associations for updated ingredient list
+            for ingredient_id in ingredient_ids:
+                if ingredient_id not in existing_ingredients:
+                    drink_ingredient_association = DrinkIngredientsAssociation(drink_id=drink.id, ingredient_id=ingredient_id)
+                    db.session.add(drink_ingredient_association)
+
             db.session.commit()
 
             return make_response(drink.to_dict(), 202)
-        
-        except ValueError:
-            return make_response({"errors": ["validation errors"]}, 400)
-
-    def delete(self, id):
-        drink = Drink.query.filter(Drink.id==id).one_or_none()
-        if drink is None:
-            return make_response({'error': 'Drink is not found'}, 404)
-        db.session.delete(drink)
-        db.session.commit()
-        return make_response({}, 204)
-
-    def patch(self, id):
-        drink = Drink.query.filter(Drink.id == id).one_or_none()
-
-        if drink is None:
-            return {'error': 'Drink not found'}, 404
-
-        fields = request.get_json()
-
-        try:
-            setattr(drink, 'strDrink', fields['strDrink'])
-            setattr(drink, 'strInstructions', fields['strInstructions'])
-            db.session.add(drink)
-            db.session.commit()
-
-            return drink.to_dict(), 202
 
         except ValueError:
             return make_response({"errors": ["validation errors"]}, 400)
+
 api.add_resource(DrinksById, '/drinks/<int:id>')
+
 
 class Drinks(Resource):
     def get(self):
@@ -88,12 +91,14 @@ class Drinks(Resource):
     
 api.add_resource(Drinks, '/drinks')
 
+
 class Users(Resource):
     def get(self):
         users = [user.to_dict() for user in User.query.all()]
         return make_response(users, 200)
     
 api.add_resource(Users, '/users')
+
 
 class CreateUser(Resource):
     def post(self):
@@ -112,9 +117,9 @@ class CreateUser(Resource):
             return make_response(user.to_dict(), 201)
         except ValueError:
             return make_response({ "errors": ["validation errors"] }, 400)
-
-        
+   
 api.add_resource(CreateUser, '/create_user')
+
 
 class UserSettings(Resource):
 
@@ -127,6 +132,7 @@ class UserSettings(Resource):
         return make_response({''}, 204)
 
 api.add_resource(UserSettings, '/user_settings')
+
 
 class CreateDrink(Resource):
     def post(self):
@@ -172,8 +178,6 @@ class CreateDrink(Resource):
             return make_response({ "errors": ["validation errors"] }, 400)
 
 api.add_resource(CreateDrink, '/create_drink')
-
-
 
 
 # class UserDrinks(Resource):
@@ -265,6 +269,7 @@ def add_favorite():
     db.session.commit()
 
     return jsonify({'message': 'Drink added to favorites successfully'})
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

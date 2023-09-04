@@ -14,17 +14,18 @@ function NavBar() {
           <NavLink to="/users-with-drinks"> List of Users Favorites </NavLink>
         </li> */}
         <li>
-          <NavLink to="/Random"> Not Sure? Click Here for a Random Drink </NavLink>
+          <NavLink to="/Random"> Random Drink </NavLink>
         </li>
         <li>
-          <NavLink to="/create_drink"> Create Your Own Drink </NavLink>
+          <NavLink to="/create_drink"> Create Drink </NavLink>
         </li>
         <li>
-          <NavLink to="/create_user"> New Here? Create an Account </NavLink>
+          <NavLink to="/create_user"> Create Account </NavLink>
+          </li>
           <li>
-          <NavLink to="/drinks"> See all drinks </NavLink>
+          <NavLink to="/drinks"> See All Drinks </NavLink>
         </li>
-        </li>
+        
       </nav>
     </div>
   );

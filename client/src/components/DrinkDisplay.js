@@ -1,5 +1,5 @@
 import React from "react";
-import FavoriteButton from "./FavoriteButton";
+// import FavoriteButton from "./FavoriteButton";
 
 function DrinkDisplay({ drink, onFavoriteClick }) {
   if (!drink) {
